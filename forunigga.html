@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Chanel, will you be my Valentine?</title>
+<style>
+body{margin:0;height:100vh;overflow:hidden;font-family:system-ui,Arial,sans-serif;display:flex;justify-content:center;align-items:center;background:linear-gradient(270deg,#ff9ecb,#ffc1dd,#ff7ab8,#ffb6d9);background-size:800% 800%;animation:bg 18s ease infinite}
+@keyframes bg{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
+#container{position:relative;z-index:1000;text-align:center}
+#question{font-size:2.6em;color:#fff;text-shadow:0 0 12px #ff2a6d;animation:float 3s ease-in-out infinite}
+@keyframes float{0%{transform:translateY(0)}50%{transform:translateY(-14px)}100%{transform:translateY(0)}}
+.buttons{margin-top:26px;position:relative;z-index:2000}
+button{position:relative;z-index:2000;border:none;padding:14px 32px;margin:10px;font-size:1.3em;border-radius:40px;cursor:pointer;transition:.25s ease}
+#yesBtn{background:#ff2a6d;color:#fff;box-shadow:0 0 15px rgba(255,0,80,.7)}
+#noBtn{background:#fff;color:#ff2a6d}
+button:hover{transform:scale(1.08)}
+.tease{min-height:1.4em;margin-top:12px;color:#fff;text-shadow:0 0 8px #ff2a6d}
+#result{display:none;color:#fff}
+#result img{width:280px;max-width:80vw;border-radius:20px;box-shadow:0 0 25px rgba(255,255,255,.7)}
+#loveText{font-size:1.9em;margin-top:12px;text-shadow:0 0 10px #ff2a6d}
+/* hearts */
+.heart{position:fixed;width:18px;height:18px;background:red;transform:rotate(45deg);animation:fall linear forwards;opacity:.9;pointer-events:none;z-index:0}
+.heart:before,.heart:after{content:"";position:absolute;width:18px;height:18px;background:red;border-radius:50%}
+.heart:before{top:-9px;left:0}
+.heart:after{left:-9px;top:0}
+@keyframes fall{to{transform:translateY(110vh) rotate(45deg);opacity:0}}
+#confetti{position:fixed;inset:0;pointer-events:none;z-index:5}
+</style>
+</head>
+<body>
+<div id="container">
+  <div id="question">Chanel, will you be my Valentine?</div>
+  <div class="buttons" id="choices">
+    <button id="yesBtn" type="button">SI ❤️</button>
+    <button id="noBtn" type="button">NO 💔</button>
+  </div>
+  <div id="tease" class="tease"></div>
+  <div id="result">
+    <img src="chanel.jpg.jpeg" alt="Minion" />
+    <div id="loveText">grazie muah 💖</div>
+  </div>
+</div>
+<audio id="bgMusic" src="amo.mp3" loop></audio>
+<canvas id="confetti"></canvas>
+<script>
+document.addEventListener('DOMContentLoaded',()=>{
+  // hearts
+  function createHeart(){
+    const h=document.createElement('div');
+    h.className='heart';
+    h.style.left=Math.random()*100+'vw';
+    h.style.animationDuration=(3+Math.random()*4)+'s';
+    document.body.appendChild(h);
+    setTimeout(()=>h.remove(),7000);
+  }
+  setInterval(createHeart,260);
+
+  const yesBtn=document.getElementById('yesBtn');
+  const noBtn=document.getElementById('noBtn');
+  const result=document.getElementById('result');
+  const choices=document.getElementById('choices');
+  const question=document.getElementById('question');
+  const tease=document.getElementById('tease');
+  const music=document.getElementById('bgMusic');
+
+  let yesScale=1, noScale=1;
+  const noMessages=['NIGGER🙏','POR FAVOR 😭','CHANELLONA ti prego 💕','NIGGA? 💔','dai... 😅'];
+
+  noBtn.addEventListener('click',()=>{
+    tease.textContent=noMessages[Math.floor(Math.random()*noMessages.length)];
+    yesScale+=0.25; noScale-=0.15;
+    if(noScale<=0.25){ noBtn.style.display='none'; }
+    yesBtn.style.transform=`scale(${yesScale})`;
+    noBtn.style.transform=`scale(${Math.max(noScale,0.25)})`;
+  });
+
+  yesBtn.addEventListener('click',()=>{
+    // play music only after user interaction
+    music.volume=0.5; music.play().catch(()=>{});
+    launchConfetti();
+    choices.style.display='none';
+    question.style.display='none';
+    tease.style.display='none';
+    result.style.display='block';
+  });
+
+  // confetti
+  const canvas=document.getElementById('confetti');
+  const ctx=canvas.getContext('2d');
+  function resize(){canvas.width=innerWidth;canvas.height=innerHeight}
+  addEventListener('resize',resize); resize();
+  let pieces=[];
+  function launchConfetti(){
+    for(let i=0;i<160;i++) pieces.push({x:Math.random()*canvas.width,y:-20,r:5+Math.random()*6,d:2+Math.random()*3,tilt:Math.random()*10,a:Math.random()*6.28,ai:0.05+Math.random()*0.07});
+    requestAnimationFrame(update);
+  }
+  function update(){
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    pieces.forEach(p=>{p.a+=p.ai;p.y+=p.d;p.x+=Math.sin(p.a);ctx.beginPath();ctx.moveTo(p.x,p.y);ctx.lineTo(p.x+p.tilt,p.y+p.r);ctx.strokeStyle=`hsl(${Math.random()*360},80%,60%)`;ctx.lineWidth=3;ctx.stroke();});
+    pieces=pieces.filter(p=>p.y<canvas.height+20);
+    if(pieces.length) requestAnimationFrame(update);
+  }
+});
+</script>
+</body>
+</html>
